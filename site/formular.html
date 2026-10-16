@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1557a3" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="logo.css" />
+    <link rel="stylesheet" href="data-form.css" />
+    <title>Lady Madrid — Clubul nostru</title>
+  </head>
+  <body class="data-page">
+    <header class="site-header data-header">
+      <a class="brand" href="index.html" aria-label="Lady Madrid, acasă">
+        <img class="logo-image" src="assets/lady-madrid-logo.jpg" alt="Lady Madrid" />
+      </a>
+      <a class="text-link data-back" href="index.html">Înapoi pe site <span>↗</span></a>
+    </header>
+
+    <main>
+      <section class="data-hero">
+        <div class="data-hero-copy">
+          <p class="eyebrow"><span></span> Lady Madrid · Militari Shopping</p>
+          <h1>Fii parte din<br /><em>clubul nostru.</em></h1>
+          <p>Lasă-ne câteva date și te vom putea anunța despre tombole, surprize și promoții speciale.</p>
+          <p class="data-note">Datele sunt transmise securizat, iar înscrierea devine activă după confirmarea adresei de email.</p>
+        </div>
+        <div class="data-hero-art" aria-hidden="true">
+          <div class="data-orb"></div>
+          <img src="assets/lady-madrid-product-berries.png" alt="" />
+          <span class="data-star data-star-one">✦</span>
+          <span class="data-star data-star-two">✦</span>
+        </div>
+      </section>
+
+      <section class="data-section" aria-labelledby="form-title">
+        <div class="data-card">
+          <div class="section-kicker">Înscriere</div>
+          <h2 id="form-title">Rămânem<br /><em>în legătură.</em></h2>
+          <p class="data-intro">Completează formularul. Câmpurile marcate cu * sunt obligatorii.</p>
+
+          <form id="club-form" novalidate>
+            <div class="form-grid">
+              <label class="field field-full" for="nume">
+                <span>Nume complet <b>*</b></span>
+                <input id="nume" name="nume" type="text" autocomplete="name" required minlength="2" placeholder="Numele tău" />
+                <small class="field-error" data-error-for="nume"></small>
+              </label>
+
+              <fieldset class="field field-full birthday-field">
+                <legend>Ziua și luna nașterii <b>*</b></legend>
+                <div class="select-pair">
+                  <label for="zi-nastere">Ziua</label>
+                  <select id="zi-nastere" name="zi-nastere" required>
+                    <option value="">Ziua</option>
+                  </select>
+                  <label for="luna-nastere">Luna</label>
+                  <select id="luna-nastere" name="luna-nastere" required>
+                    <option value="">Luna</option>
+                  </select>
+                </div>
+                <small class="field-error" data-error-for="zi-nastere"></small>
+              </fieldset>
+
+              <label class="field" for="telefon">
+                <span>Telefon <b>*</b></span>
+                <input id="telefon" name="telefon" type="tel" autocomplete="tel" required inputmode="tel" placeholder="07xx xxx xxx" />
+                <small class="field-error" data-error-for="telefon"></small>
+              </label>
+
+              <label class="field" for="email">
+                <span>Email <b>*</b></span>
+                <input id="email" name="email" type="email" autocomplete="email" required placeholder="nume@email.com" />
+                <small class="field-error" data-error-for="email"></small>
+              </label>
+            </div>
+
+            <div class="consents">
+              <label class="check-row required-check">
+                <input id="accept-terms" name="accept-terms" type="checkbox" required />
+                <span>Am citit și accept <a href="termeni-si-conditii.html" target="_blank" rel="noopener">Termenii și condițiile</a> și am luat la cunoștință <a href="informare-confidentialitate.html" target="_blank" rel="noopener">informarea privind protecția datelor</a>. <b>*</b></span>
+              </label>
+              <label class="check-row">
+                <input id="marketing" name="marketing" type="checkbox" />
+                <span>Sunt de acord să primesc de la Lady Madrid informații despre promoții, tombole și evenimente prin email și/sau SMS. Îmi pot retrage acordul oricând.</span>
+              </label>
+            </div>
+
+            <button class="button button-blue form-submit" type="submit">Înscrie-mă în club <span>→</span></button>
+            <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="data-footer"><a href="index.html">Lady Madrid</a><span>Frozen yogurt & good moods.</span><span>© 2026 Lady Madrid</span></footer>
+    <script src="data-form.js"></script>
+  </body>
+</html>

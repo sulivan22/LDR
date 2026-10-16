@@ -1,0 +1,16 @@
+{
+  "name": "lady-madrid-romania",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check site/data-form.js && node --check api/register.js && node --check api/verify.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.20.0",
+    "resend": "^6.2.2"
+  }
+}
