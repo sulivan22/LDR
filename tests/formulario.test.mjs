@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { validateRegistration } from '../api/_lib/validation.js';
 
 const pagePath = new URL('../site/ed64e10b9bd101.html', import.meta.url);
@@ -60,13 +60,30 @@ test('pagina principală afișează o secțiune dedicată TikTok sub galeria Ins
   assert.match(html, /03 — Inspirație din Instagram/);
   assert.match(html, /04 — Inspirație din TikTok/);
   assert.match(html, /href="https:\/\/www\.tiktok\.com\/@ladymadrid\.ro\//);
+  assert.match(html, /class="social-icon instagram-icon"/);
+  assert.match(html, /class="social-icon tiktok-icon"/);
+  assert.doesNotMatch(html, /(?:Instagram|TikTok)\s*<span>↗<\/span>/);
   assert.match(html, /class="photo-grid tiktok-grid"/);
-  assert.equal((html.match(/class="photo(?: photo-large| photo-tall)?"/g) ?? []).length, 13);
-  assert.match(html, /assets\/tiktok-yogurt-01\.png/);
-  assert.match(html, /assets\/tiktok-yogurt-07\.png/);
+  assert.equal((html.match(/class="photo(?: photo-large| photo-tall)?"/g) ?? []).length, 12);
+  assert.equal((html.match(/assets\/tiktok-yogurt-0[1-7]\.jpg/g) ?? []).length, 6);
+  assert.doesNotMatch(html, /assets\/tiktok-yogurt-0[1-7]\.png/);
+  for (let index = 1; index <= 7; index += 1) {
+    await access(new URL(`../site/assets/tiktok-yogurt-0${index}.jpg`, import.meta.url));
+  }
   assert.doesNotMatch(html, /tiktok-embed|data-video-id|embed\.js/);
   assert.match(html, /Militari Shopping/);
   assert.match(html, /06 — Unde ne găsești/);
   assert.match(html, /Băneasa Shopping/);
   assert.match(html, /Șoseaua București - Ploiești, 42D/);
+  assert.equal((html.match(/class="visit-photo"/g) ?? []).length, 2);
+  assert.match(html, /assets\/militari-shopping\.jpg/);
+  assert.match(html, /assets\/baneasa-shopping\.jpg/);
+  assert.match(html, /05 — Unde ne găsești<\/div>\s*<figure class="visit-photo">[\s\S]*assets\/militari-shopping\.jpg[\s\S]*<\/figure>\s*<h2>/);
+  assert.match(html, /06 — Unde ne găsești<\/div>\s*<figure class="visit-photo">[\s\S]*assets\/baneasa-shopping\.jpg[\s\S]*<\/figure>\s*<h2>/);
+  for (const asset of ['militari-shopping.jpg', 'baneasa-shopping.jpg']) {
+    await access(new URL(`../site/assets/${asset}`, import.meta.url));
+  }
+  const styles = await readFile(new URL('../site/styles.css', import.meta.url), 'utf8');
+  assert.match(styles, /\.visit-card \.social-links a\{color:#fff\}/);
+  assert.match(styles, /\.visit-photo\{[^}]*width:100%;[^}]*max-width:560px[^}]*height:auto[^}]*aspect-ratio:16 \/ 9/);
 });
