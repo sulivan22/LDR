@@ -23,7 +23,7 @@ function setError(fieldName, message) {
 
 clubForm?.addEventListener('submit', async (event) => {
   event.preventDefault();
-  ['nume', 'zi-nastere', 'telefon', 'email'].forEach((fieldName) => setError(fieldName, ''));
+  ['nume', 'zi-nastere', 'telefon', 'email', 'ticketNumber'].forEach((fieldName) => setError(fieldName, ''));
   statusMessage.textContent = '';
 
   const formData = new FormData(clubForm);
@@ -31,11 +31,13 @@ clubForm?.addEventListener('submit', async (event) => {
   const name = String(formData.get('nume') || '').trim();
   const phone = String(formData.get('telefon') || '').trim();
   const email = String(formData.get('email') || '').trim();
+  const ticketNumber = String(formData.get('ticketNumber') || '').trim();
 
   if (name.length < 2) { setError('nume', 'Introdu numele complet.'); isValid = false; }
   if (!formData.get('zi-nastere') || !formData.get('luna-nastere')) { setError('zi-nastere', 'Alege ziua și luna nașterii.'); isValid = false; }
   if (!/^[+\d][\d\s().-]{7,}$/.test(phone)) { setError('telefon', 'Introdu un număr de telefon valid.'); isValid = false; }
   if (!/^\S+@\S+\.\S+$/.test(email)) { setError('email', 'Introdu o adresă de email validă.'); isValid = false; }
+  if (!/^\d{8}$/.test(ticketNumber)) { setError('ticketNumber', 'Numărul de ticket trebuie să conțină exact 8 cifre.'); isValid = false; }
   if (!document.querySelector('#accept-terms')?.checked) { statusMessage.textContent = 'Pentru a continua, trebuie să accepți termenii și informarea privind datele.'; isValid = false; }
 
   if (!isValid) {
@@ -59,6 +61,7 @@ clubForm?.addEventListener('submit', async (event) => {
         birthMonth: Number(formData.get('luna-nastere')),
         phone,
         email,
+        ticketNumber,
         acceptTerms: document.querySelector('#accept-terms')?.checked === true,
         marketing: document.querySelector('#marketing')?.checked === true,
       }),

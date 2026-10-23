@@ -76,6 +76,12 @@
                 <input id="email" name="email" type="email" autocomplete="email" required placeholder="nume@email.com" />
                 <small class="field-error" data-error-for="email"></small>
               </label>
+
+              <label class="field field-full" for="ticket-number">
+                <span>Număr de ticket (TD) <b>*</b></span>
+                <input id="ticket-number" name="ticketNumber" type="text" inputmode="numeric" autocomplete="off" required minlength="8" maxlength="8" pattern="\d{8}" placeholder="12345678" />
+                <small class="field-error" data-error-for="ticketNumber"></small>
+              </label>
             </div>
 
             <div class="consents">
