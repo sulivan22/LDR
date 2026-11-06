@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { getMembersCollection } from './_lib/db.js';
-import { sendVerificationEmail } from './_lib/email.js';
+import { sendExistingEmailNotice, sendVerificationEmail } from './_lib/email.js';
 import { validateRegistration } from './_lib/validation.js';
 
 const MAX_BODY_BYTES = 20 * 1024;
@@ -28,23 +28,42 @@ export default async function handler(req, res) {
 
   try {
     const collection = await getMembersCollection();
-    const token = randomBytes(32).toString('base64url');
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + Number(process.env.VERIFICATION_TOKEN_TTL_HOURS || 24) * 60 * 60 * 1000);
-    await collection.insertOne({
+    const existingVerifiedEmail = await collection.findOne(
+      { email: values.email, verifiedAt: { $exists: true } },
+      { projection: { _id: 1 } },
+    );
+    const emailAlreadyVerified = Boolean(existingVerifiedEmail);
+    const record = {
       ...values,
-      status: 'pending_email_verification',
+      status: emailAlreadyVerified ? 'active' : 'pending_email_verification',
       termsAcceptedAt: now,
       privacyNoticeVersion: '2026-10',
-      lastVerificationSentAt: now,
-      verificationTokenHash: hashToken(token),
-      verificationExpiresAt: expiresAt,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+    let verificationToken;
+
+    if (emailAlreadyVerified) {
+      record.verifiedAt = now;
+      record.verificationMethod = 'previously_verified_email';
+    } else {
+      verificationToken = randomBytes(32).toString('base64url');
+      const expiresAt = new Date(now.getTime() + Number(process.env.VERIFICATION_TOKEN_TTL_HOURS || 24) * 60 * 60 * 1000);
+      record.lastVerificationSentAt = now;
+      record.verificationTokenHash = hashToken(verificationToken);
+      record.verificationExpiresAt = expiresAt;
+    }
+
+    await collection.insertOne(record);
+
+    if (emailAlreadyVerified) {
+      await sendExistingEmailNotice({ email: values.email, name: values.name });
+      return sendJson(res, 202, { ok: true, message: 'Înscrierea a fost înregistrată. Emailul tău era deja confirmat.' });
+    }
 
     const baseUrl = (process.env.APP_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
-    await sendVerificationEmail({ email: values.email, name: values.name, verificationUrl: `${baseUrl}/api/verify?token=${encodeURIComponent(token)}` });
+    await sendVerificationEmail({ email: values.email, name: values.name, verificationUrl: `${baseUrl}/api/verify?token=${encodeURIComponent(verificationToken)}` });
     return sendJson(res, 202, { ok: true, message: 'Verifică emailul pentru a confirma înscrierea.' });
   } catch (error) {
     console.error('registration_error', error);

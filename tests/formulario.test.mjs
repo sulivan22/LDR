@@ -9,6 +9,7 @@ const privacyPath = new URL('../site/informare-confidentialitate.html', import.m
 const homepagePath = new URL('../site/index.html', import.meta.url);
 const registerPath = new URL('../api/register.js', import.meta.url);
 const dbPath = new URL('../api/_lib/db.js', import.meta.url);
+const emailPath = new URL('../api/_lib/email.js', import.meta.url);
 
 test('formularul de fidelizare are câmpurile și consimțămintele necesare', async () => {
   const html = await readFile(pagePath, 'utf8');
@@ -53,6 +54,18 @@ test('permite înscrieri multiple pentru aceeași adresă de email', async () =>
   assert.doesNotMatch(register, /updateOne\(\s*\{ email: values\.email/);
   assert.doesNotMatch(db, /unique: true, name: ['"]email_unique['"]/);
   assert.match(db, /name: ['"]email_lookup['"]/);
+});
+
+test('nu cere o nouă verificare pentru un email deja confirmat', async () => {
+  const register = await readFile(registerPath, 'utf8');
+  const email = await readFile(emailPath, 'utf8');
+
+  assert.match(register, /verifiedAt: \{ \$exists: true \}/);
+  assert.match(register, /verificationMethod = 'previously_verified_email'/);
+  assert.match(register, /sendExistingEmailNotice\(\{ email: values\.email, name: values\.name \}\)/);
+  assert.match(register, /Emailul tău era deja confirmat/);
+  assert.match(email, /Noua ta înscriere a fost înregistrată/);
+  assert.match(email, /nu este nevoie să o verifici din nou/);
 });
 
 test('documentele legale identifică operatorul și includ numărul de ticket TD', async () => {
