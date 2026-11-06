@@ -22,12 +22,25 @@ export async function getMembersCollection() {
   const collection = database.collection(process.env.MONGODB_COLLECTION || 'members');
 
   if (!indexesPromise) {
-    indexesPromise = Promise.all([
-      collection.createIndex({ email: 1 }, { unique: true, name: 'email_unique' }),
-      collection.createIndex({ verificationTokenHash: 1 }, { unique: true, sparse: true, name: 'verification_token_unique' }),
-      collection.createIndex({ verificationExpiresAt: 1 }, { expireAfterSeconds: 0, name: 'verification_expiry' }),
-    ]);
+    indexesPromise = ensureIndexes(collection);
   }
   await indexesPromise;
   return collection;
+}
+
+async function ensureIndexes(collection) {
+  // The first version of the form created a unique email index. Remove it so
+  // the same customer can register each additional purchase independently.
+  try {
+    await collection.dropIndex('email_unique');
+  } catch (error) {
+    const indexDoesNotExist = error?.code === 27 || error?.codeName === 'IndexNotFound';
+    if (!indexDoesNotExist) throw error;
+  }
+
+  await Promise.all([
+    collection.createIndex({ email: 1 }, { name: 'email_lookup' }),
+    collection.createIndex({ verificationTokenHash: 1 }, { unique: true, sparse: true, name: 'verification_token_unique' }),
+    collection.createIndex({ verificationExpiresAt: 1 }, { expireAfterSeconds: 0, name: 'verification_expiry' }),
+  ]);
 }

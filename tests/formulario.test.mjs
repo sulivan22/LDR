@@ -7,6 +7,8 @@ const pagePath = new URL('../site/ed64e10b9bd101.html', import.meta.url);
 const termsPath = new URL('../site/termeni-si-conditii.html', import.meta.url);
 const privacyPath = new URL('../site/informare-confidentialitate.html', import.meta.url);
 const homepagePath = new URL('../site/index.html', import.meta.url);
+const registerPath = new URL('../api/register.js', import.meta.url);
+const dbPath = new URL('../api/_lib/db.js', import.meta.url);
 
 test('formularul de fidelizare are câmpurile și consimțămintele necesare', async () => {
   const html = await readFile(pagePath, 'utf8');
@@ -40,6 +42,17 @@ test('validarea acceptă doar un număr de ticket TD format din 8 cifre', () => 
   assert.equal(validateRegistration({ ...validPayload, ticketNumber: '00123456' }).values.ticketNumber, '00123456');
   assert.equal(validateRegistration({ ...validPayload, ticketNumber: '1234567' }).errors.ticketNumber, 'Numărul de ticket trebuie să conțină exact 8 cifre.');
   assert.equal(validateRegistration({ ...validPayload, ticketNumber: '1234ABCD' }).errors.ticketNumber, 'Numărul de ticket trebuie să conțină exact 8 cifre.');
+});
+
+test('permite înscrieri multiple pentru aceeași adresă de email', async () => {
+  const register = await readFile(registerPath, 'utf8');
+  const db = await readFile(dbPath, 'utf8');
+
+  assert.match(register, /collection\.insertOne\(/);
+  assert.doesNotMatch(register, /findOne\(\{ email: values\.email/);
+  assert.doesNotMatch(register, /updateOne\(\s*\{ email: values\.email/);
+  assert.doesNotMatch(db, /unique: true, name: ['"]email_unique['"]/);
+  assert.match(db, /name: ['"]email_lookup['"]/);
 });
 
 test('documentele legale identifică operatorul și includ numărul de ticket TD', async () => {
